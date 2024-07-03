@@ -85,6 +85,7 @@ class Downstream:
     def send_bytes(self, msg: bytes) -> None:
         logger.debug("<-- downstream: %s: %s", self.addr, msg)
         self.wfile.write(msg)
+        self.wfile.flush()
 
     def recv(self) -> Any:
         return self.recv_bytes().decode()
