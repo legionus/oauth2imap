@@ -210,7 +210,7 @@ class ImapTCPHandler(socketserver.StreamRequestHandler):
             #
             while session:
                 line = ds.recv_bytes()
-                if line == b"":
+                if line.rstrip(CRLF.encode()) == b"":
                     continue
 
                 #
