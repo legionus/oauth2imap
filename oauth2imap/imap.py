@@ -77,6 +77,9 @@ class Downstream:
         self.rfile = rfile
         self.wfile = wfile
 
+    def readable(self) -> bool:
+        return not self.rfile.closed and self.rfile.readable()
+
     def recv_bytes(self) -> Any:
         line = self.rfile.readline()
         logger.debug("--> downstream: %s: %s", self.addr, line)
@@ -200,6 +203,9 @@ def session(config: Dict[str,Any], ds: Downstream, up: Upstream) -> bool:
         # or a sequence of octets with a known count followed by a line.
         #
         while session:
+            if not ds.readable():
+                break
+
             line = ds.recv_bytes()
             if line.rstrip(CRLF.encode()) == b"":
                 continue
@@ -261,6 +267,7 @@ def session(config: Dict[str,Any], ds: Downstream, up: Upstream) -> bool:
         logger.debug("connection error: %s", e)
 
     except Exception:
+        logger.critical("got exception: %s", e)
         return False
 
     return True
