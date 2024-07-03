@@ -18,6 +18,11 @@ def cmd_server(cmdargs: argparse.Namespace) -> int:
     return oauth2imap.server.main(cmdargs)
 
 
+def cmd_tunnel(cmdargs: argparse.Namespace) -> int:
+    import oauth2imap.tunnel
+    return oauth2imap.tunnel.main(cmdargs)
+
+
 def add_common_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("-v", "--verbose",
                         dest="verbose", action='count', default=0,
@@ -55,7 +60,8 @@ oauth2 authentication.
 
     # oauth2imap server
     sp0_description = """\
-imap server
+The mode in which a downstream imap4 server is created with a different
+authentication method for access.
 """
     sp0 = subparsers.add_parser("server",
                                 description=sp0_description,
@@ -64,6 +70,19 @@ imap server
                                 add_help=False)
     sp0.set_defaults(func=cmd_server)
     add_common_arguments(sp0)
+
+    # oauth2imap tunnel
+    sp1_description = """\
+The mode of operation is when a session to upstream is created immediately and
+commands are received from stdin and the result will be written to stdout.
+"""
+    sp1 = subparsers.add_parser("tunnel",
+                                description=sp1_description,
+                                help=sp1_description,
+                                epilog=epilog,
+                                add_help=False)
+    sp1.set_defaults(func=cmd_tunnel)
+    add_common_arguments(sp1)
 
     return parser
 
