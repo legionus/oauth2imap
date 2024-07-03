@@ -266,7 +266,7 @@ def session(config: Dict[str,Any], ds: Downstream, up: Upstream) -> bool:
     except (BrokenPipeError, ConnectionResetError) as e:
         logger.debug("connection error: %s", e)
 
-    except Exception:
+    except Exception as e:
         logger.critical("got exception: %s", e)
         return False
 
