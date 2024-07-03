@@ -24,6 +24,10 @@ def cmd_tunnel(cmdargs: argparse.Namespace) -> int:
 
 
 def add_common_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("-l", "--logfile",
+                        dest="logfile", action='store', default=None,
+                        metavar="FILENAME",
+                        help="append logs messages to FILENAME instead of stdout.")
     parser.add_argument("-v", "--verbose",
                         dest="verbose", action='count', default=0,
                         help="print a message for each action.")
@@ -99,7 +103,9 @@ def setup_logger(cmdargs: argparse.Namespace) -> None:
     if cmdargs.quiet:
         level = logging.CRITICAL
 
-    oauth2imap.setup_logger(logger, level=level, fmt="[%(asctime)s] %(message)s")
+    oauth2imap.setup_logger(logger, level=level,
+                            fmt="[%(asctime)s] %(message)s",
+                            logfile=cmdargs.logfile)
 
 
 def cmd() -> int:
