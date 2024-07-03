@@ -1,0 +1,7 @@
+# vim: filetype=muttrc
+#
+# http://www.mutt.org/doc/manual/#tunnel
+#
+
+set tunnel = "oauth2imap tunnel -l /tmp/oauth2imap.log"
+set tunnel_is_secure = yes
