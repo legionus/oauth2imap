@@ -181,9 +181,10 @@ class Upstream:
 def session(config: Dict[str,Any], ds: Downstream, up: Upstream) -> bool:
     ctx = Context({})
 
-    for param in ("username", "password"):
-        if param in config["downstream"]:
-            ctx[param] = config["downstream"][param]
+    if "downstream" in config:
+        for param in ("username", "password"):
+            if param in config["downstream"]:
+                ctx[param] = config["downstream"][param]
 
     session = True
     authorized = False
