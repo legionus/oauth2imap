@@ -1,0 +1,17 @@
+[upstream]
+authority = "https://login.microsoftonline.com/<<< tenant id or name >>>"
+tenant-id = "<<< tenant id or naae >>>"
+client-id = "<<< your client id >>>"
+server = "outlook.office365.com"
+port = 993
+scope = [ "https://outlook.office365.com/.default" ]
+username = "<<< your username or email here >>>"
+tokens-file = "/home/user/.tokens"
+
+[downstream]
+server = "127.0.0.1"
+port = 10143
+username = "example"
+password = "secret"
+
+# vim: ft=toml
