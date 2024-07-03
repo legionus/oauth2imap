@@ -13,9 +13,9 @@ import oauth2imap
 logger = oauth2imap.logger
 
 
-def cmd_imap(cmdargs: argparse.Namespace) -> int:
-    import oauth2imap.imap
-    return oauth2imap.imap.main(cmdargs)
+def cmd_server(cmdargs: argparse.Namespace) -> int:
+    import oauth2imap.server
+    return oauth2imap.server.main(cmdargs)
 
 
 def add_common_arguments(parser: argparse.ArgumentParser) -> None:
@@ -62,7 +62,7 @@ imap server
                                 help=sp0_description,
                                 epilog=epilog,
                                 add_help=False)
-    sp0.set_defaults(func=cmd_imap)
+    sp0.set_defaults(func=cmd_server)
     add_common_arguments(sp0)
 
     return parser
