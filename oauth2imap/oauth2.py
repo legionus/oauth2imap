@@ -51,7 +51,7 @@ def __register_microsoft() -> None:
     providers["microsoft"]["client-secret"]      = ""
     providers["microsoft"]["username"]           = ""
     providers["microsoft"]["tenant"]             = "common"
-    providers["microsoft"]["scope"]              = "https://outlook.office365.com/.default"
+    providers["microsoft"]["scope"]              = "https://outlook.office365.com/.default offline_access"
     providers["microsoft"]["authority"]          = "https://login.microsoftonline.com/${tenant}"
     providers["microsoft"]["authorize-endpoint"] = "${authority}/oauth2/v2.0/authorize"
     providers["microsoft"]["token-endpoint"]     = "${authority}/oauth2/v2.0/token"
@@ -132,9 +132,22 @@ def get_token_key(provider: Provider) -> str:
 
 def get_token(provider: Provider, params: Dict[str,str]) -> Token | None:
     try:
-        response = urllib.request.urlopen(
-                provider["token-endpoint"],
-                urllib.parse.urlencode(params).encode())
+        #
+        # From: https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.3
+        #
+        # The client makes a request to the token endpoint by sending the
+        # following parameters using the "application/x-www-form-urlencoded"
+        # format.
+        #
+        req = urllib.request.Request(
+                method="POST",
+                url=provider["token-endpoint"],
+                data=urllib.parse.urlencode(params).encode(),
+                headers={
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+        )
+        response = urllib.request.urlopen(req)
 
     except urllib.error.HTTPError as err:
         logger.debug("http error: code=%s reason=%s", err.code, err.reason)
@@ -149,6 +162,7 @@ def get_token(provider: Provider, params: Dict[str,str]) -> Token | None:
         d = {
             "access_token": result["access_token"],
             "access_token_expiration": (datetime.now() + timedelta(seconds=int(result["expires_in"]))).isoformat(),
+            "refresh_token": "",
         }
         if "refresh_token" in result:
             d["refresh_token"] = result["refresh_token"]
@@ -167,10 +181,12 @@ def get_token(provider: Provider, params: Dict[str,str]) -> Token | None:
     return None
 
 
-def refresh_token(provider: Provider, token: Token) -> Token | None:
-    if not token["refresh_token"]:
+def do_refresh_token(provider: Provider, token: Token) -> Token | None:
+    if "refresh_token" not in token or not token["refresh_token"]:
         logger.critical("no refresh token")
         return None
+
+    logger.debug("refreshing token ...")
 
     params = {
         "client_id": provider["client-id"],
@@ -198,7 +214,7 @@ def get_access_token(config: Dict[str,Any]) -> str | None:
         token = cache[token_key]
 
         if not valid_token(token):
-            token = refresh_token(provider, token)
+            token = do_refresh_token(provider, token)
 
     if not token:
         logger.critical("no valid access token")

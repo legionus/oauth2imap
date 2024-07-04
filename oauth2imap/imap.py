@@ -144,7 +144,7 @@ class Upstream:
         self.imap.debug = 4
 
     def authenticate(self, config: Dict[str,Any]) -> bool:
-        logger.debug("Auth ...")
+        logger.debug("authenticate account on the upstream server ...")
 
         token = oauth2.get_access_token(config)
         if not token:
@@ -164,7 +164,7 @@ class Upstream:
                 return True
             logger.critical("%s: %s", self.addr, dat)
         except Exception as e:
-            logger.debug("got exception: %s", e)
+            logger.debug("got upstream exception: %s", repr(e))
 
         return False
 
@@ -270,10 +270,10 @@ def session(config: Dict[str,Any], ds: Downstream, up: Upstream) -> bool:
                     break
 
     except (BrokenPipeError, ConnectionResetError) as e:
-        logger.debug("connection error: %s", e)
+        logger.debug("session connection error: %s", e)
 
     except Exception as e:
-        logger.critical("got exception: %s", e)
+        logger.critical("session got exception: %s", repr(e))
         return False
 
     return True
