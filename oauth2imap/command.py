@@ -25,6 +25,7 @@ def cmd_tunnel(cmdargs: argparse.Namespace) -> int:
 
 def cmd_token(cmdargs: argparse.Namespace) -> int:
     import oauth2imap._token
+    # pylint: disable-next=protected-access
     return oauth2imap._token.main(cmdargs)
 
 
