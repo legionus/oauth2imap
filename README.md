@@ -39,6 +39,9 @@ For tunnel mode, the `downstream` section is not required.
   IMAP/POP/SMTP proxy that transparently adds OAuth 2.0 authentication for email
   clients that don't support this method.
 
+* [mutt_oauth2.py](https://gitlab.com/muttmua/mutt/-/blob/master/contrib/mutt_oauth2.py) -- The
+  script obtains and prints a valid OAuth2 access token.
+
 ## License
 
 oauth2imap is licensed under the GNU General Public License (GPL), version 3.
