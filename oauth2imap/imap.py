@@ -261,6 +261,11 @@ def session(config: Dict[str,Any], ds: Downstream, up: Upstream) -> bool:
                 ds.send_bytes(line)
 
                 tag, status = parse_server_command(line.decode().rstrip(CRLF))
+
+                if status == "BYE":
+                    session = False
+                    break
+
                 if status and tag == ctx["tag"]:
                     break
 
