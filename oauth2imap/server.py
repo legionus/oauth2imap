@@ -12,6 +12,7 @@ from typing import Dict, Any
 
 import oauth2imap
 import oauth2imap.config
+import oauth2imap.oauth2 as oauth2
 import oauth2imap.imap as imap
 
 logger = oauth2imap.logger
@@ -21,9 +22,13 @@ class ImapTCPHandler(socketserver.StreamRequestHandler):
     def handle(self) -> None:
         config = getattr(self.server, "config")
 
+        provider = oauth2.get_upstream_provider(config)
+        if not provider:
+            return None
+
         logger.info("%s: new connection", self.client_address)
 
-        up = imap.Upstream(config["upstream"]["server"], config["upstream"]["port"])
+        up = imap.Upstream(provider["imap-endpoint"], 993)
         ds = imap.Downstream(self.client_address, self.rfile, self.wfile)
 
         imap.session(config, ds, up)

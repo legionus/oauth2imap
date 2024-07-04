@@ -34,9 +34,7 @@ setup(
         packages=["oauth2imap"],
         license="GPLv3+",
         keywords=["imap", "server", "oauth2"],
-        install_requires=[
-            "msal>=1.29.0",
-            ],
+        install_requires=[],
         python_requires=">=3.11",
         entry_points={
             "console_scripts": [

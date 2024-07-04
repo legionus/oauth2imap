@@ -23,6 +23,11 @@ def cmd_tunnel(cmdargs: argparse.Namespace) -> int:
     return oauth2imap.tunnel.main(cmdargs)
 
 
+def cmd_token(cmdargs: argparse.Namespace) -> int:
+    import oauth2imap._token
+    return oauth2imap._token.main(cmdargs)
+
+
 def add_common_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("-l", "--logfile",
                         dest="logfile", action='store', default=None,
@@ -87,6 +92,23 @@ commands are received from stdin and the result will be written to stdout.
                                 add_help=False)
     sp1.set_defaults(func=cmd_tunnel)
     add_common_arguments(sp1)
+
+    # oauth2imap token
+    sp2_description = """\
+Subcommand to maintain xoauth2 tokens.
+"""
+    sp2 = subparsers.add_parser("token",
+                                description=sp2_description,
+                                help=sp2_description,
+                                epilog=epilog,
+                                add_help=False)
+    sp2.set_defaults(func=cmd_token)
+
+    sp2.add_argument("--authflow",
+                     dest="authflow", action="store", metavar="METHOD",
+                     help="authorization mode.")
+
+    add_common_arguments(sp2)
 
     return parser
 

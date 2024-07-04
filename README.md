@@ -3,9 +3,6 @@
 The utility provides the ability to access an IMAP4 account on a server with
 XOAUTH2 authentication.
 
-For now, the utility only supports outlook.office365.com. This may change if a
-feature request is received.
-
 There are several use-cases:
 
 1. A server is created that proxies requests to the upstream imap4 server. The
@@ -21,13 +18,10 @@ The utility uses a config file to store authentication information.
 
 ```toml
 [upstream]
-authority = "https://login.microsoftonline.com/<<< tenant id or name >>>"
-tenant-id = "<<< tenant id or naae >>>"
-client-id = "<<< your client id >>>"
-server = "outlook.office365.com"
-port = 993
-scope = [ "https://outlook.office365.com/.default" ]
-username = "<<< your username or email here >>>"
+provider    = "microsoft"
+tenant      = "<<< tenant id or naae >>>"
+client-id   = "<<< your client id >>>"
+username    = "<<< your username or email here >>>"
 tokens-file = "/home/user/.tokens"
 
 [downstream]

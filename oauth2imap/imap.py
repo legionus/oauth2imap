@@ -151,20 +151,20 @@ class Upstream:
             logger.critical("%s: unable to get access token", self.addr)
             return False
 
-        username = config["upstream"]['username']
-        password = token
+        provider = oauth2.get_upstream_provider(config)
+        if not provider:
+            return False
 
         def auth_string(_: Any) -> bytes | None:
-            s = f"user={username}\x01auth=Bearer {password}\x01\x01"
-            return s.encode()
+            return oauth2.sasl_string(provider, token)
 
         try:
             typ, dat = self.imap.authenticate("XOAUTH2", auth_string)
             if typ == "OK":
                 return True
             logger.critical("%s: %s", self.addr, dat)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("got exception: %s", e)
 
         return False
 

@@ -1,11 +1,8 @@
 [upstream]
-authority = "https://login.microsoftonline.com/<<< tenant id or name >>>"
-tenant-id = "<<< tenant id or naae >>>"
-client-id = "<<< your client id >>>"
-server = "outlook.office365.com"
-port = 993
-scope = [ "https://outlook.office365.com/.default" ]
-username = "<<< your username or email here >>>"
+provider    = "microsoft"
+tenant      = "<<< tenant id or naae >>>"
+client-id   = "<<< your client id >>>"
+username    = "<<< your username or email here >>>"
 tokens-file = "/home/user/.tokens"
 
 [downstream]
