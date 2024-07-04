@@ -4,7 +4,9 @@
 
 __author__ = 'Alexey Gladkov <legion@kernel.org>'
 
+import os
 import os.path
+import fcntl
 import json
 import hashlib
 import urllib.parse
@@ -26,7 +28,6 @@ class Token(Dict[str,str]):
 class Provider(Dict[str,str]):
     pass
 
-cache: Dict[str,Token] = {}
 providers: Dict[str,Provider] = {}
 
 
@@ -94,23 +95,34 @@ def get_upstream_provider(config: Dict[str,Any]) -> Provider | None:
 
 
 def get_token_cache(filename: str) -> Dict[str,Token]:
-    global cache
+    if not os.path.exists(filename):
+        return {}
 
-    if not cache and os.path.exists(filename):
-        with open(filename, encoding="utf-8") as file:
-            data = file.read() or "{}"
-            cache = json.loads(data)
+    fp = os.open(filename, os.O_RDONLY)
+    fcntl.flock(fp, fcntl.LOCK_SH)
 
+    with os.fdopen(fp, "r", encoding="utf-8") as file:
+        data = file.read() or "{}"
+
+    cache: Dict[str,Token] = json.loads(data or "{}")
     return cache
 
 
-def write_token_cache(filename: str, new_cache: Dict[str,Token]) -> None:
-    if cache:
-        # TODO: flock needed.
-        with open(filename, "w", encoding="utf-8") as file:
-            json.dump(new_cache, file, indent=4, sort_keys=True)
+def write_token(config: Dict[str,Any], provider: Provider, token: Token) -> None:
+    filename = config["upstream"]["tokens-file"]
 
-    return None
+    fp = os.open(filename, os.O_CREAT|os.O_RDWR, 0o600)
+    fcntl.flock(fp, fcntl.LOCK_EX)
+
+    with os.fdopen(fp, "w+", encoding="utf-8") as file:
+        data = file.read() or "{}"
+        cache = json.loads(data)
+
+        token_key = get_token_key(provider)
+        cache[token_key] = token
+
+        file.seek(0)
+        json.dump(cache, file, indent=4, sort_keys=True)
 
 
 def valid_token(token: Token) -> bool:
@@ -215,6 +227,9 @@ def get_access_token(config: Dict[str,Any]) -> str | None:
 
         if not valid_token(token):
             token = do_refresh_token(provider, token)
+
+            if token:
+                write_token(config, provider, token)
 
     if not token:
         logger.critical("no valid access token")

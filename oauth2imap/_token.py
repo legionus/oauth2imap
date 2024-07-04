@@ -139,11 +139,6 @@ def main(cmdargs: argparse.Namespace) -> int:
         logger.critical("unable to get token")
         return oauth2imap.EX_FAILURE
 
-    cache = oauth2.get_token_cache(config["upstream"]["tokens-file"])
-    token_key = oauth2.get_token_key(provider)
-
-    cache[token_key] = token
-
-    oauth2.write_token_cache(config["upstream"]["tokens-file"], cache)
+    oauth2.write_token(config, provider, token)
 
     return oauth2imap.EX_SUCCESS
