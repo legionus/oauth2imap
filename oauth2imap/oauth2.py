@@ -121,6 +121,9 @@ def write_token(config: Dict[str,Any], provider: Provider, token: Token) -> None
         token_key = get_token_key(provider)
         cache[token_key] = token
 
+        st = os.fstat(fp)
+        os.ftruncate(fp, st.st_size)
+
         file.seek(0)
         json.dump(cache, file, indent=4, sort_keys=True)
 
