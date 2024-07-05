@@ -91,7 +91,7 @@ class Downstream:
         self.wfile.flush()
 
     def recv(self) -> Any:
-        return self.recv_bytes().decode()
+        return self.recv_bytes().decode("utf-8", "replace")
 
     def send(self, ans: List[str]) -> None:
         msg = " ".join(ans) + CRLF
@@ -228,7 +228,7 @@ def session(config: Dict[str,Any], ds: Downstream, up: Upstream) -> bool:
             # (if appropriate) and the remainder of the command. This
             # response is prefixed with the token "+".
             #
-            tag, cmd, args = parse_client_command(line.decode().rstrip(CRLF))
+            tag, cmd, args = parse_client_command(line.decode("utf-8", "replace").rstrip(CRLF))
             ctx["tag"] = tag
 
             if cmd == "LOGOUT":
@@ -260,7 +260,7 @@ def session(config: Dict[str,Any], ds: Downstream, up: Upstream) -> bool:
                 line = up.recv_bytes()
                 ds.send_bytes(line)
 
-                tag, status = parse_server_command(line.decode().rstrip(CRLF))
+                tag, status = parse_server_command(line.decode("utf-8", "replace").rstrip(CRLF))
 
                 if status == "BYE":
                     session = False
