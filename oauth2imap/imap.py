@@ -4,6 +4,7 @@
 
 __author__ = 'Alexey Gladkov <legion@kernel.org>'
 
+import re
 import imaplib
 
 from typing import Dict, Tuple, List, Any
@@ -14,6 +15,7 @@ import oauth2imap.auth as auth
 import oauth2imap.oauth2 as oauth2
 
 CRLF = '\r\n'
+LiteralRe = br'.*{(?P<size>\d+)}\r\n$'
 
 logger = oauth2imap.logger
 
@@ -247,6 +249,8 @@ def session(config: Dict[str,Any], ds: Downstream, up: Upstream) -> bool:
 
             up.send_bytes(line)
 
+            literal_size = 0
+
             #
             # From: https://datatracker.ietf.org/doc/html/rfc9051#section-7
             #
@@ -259,6 +263,33 @@ def session(config: Dict[str,Any], ds: Downstream, up: Upstream) -> bool:
             while True:
                 line = up.recv_bytes()
                 ds.send_bytes(line)
+
+                #
+                # We don't need to look for the tag and command completion
+                # status inside the string literal.
+                #
+                if literal_size > 0:
+                    literal_size -= len(line)
+
+                    if literal_size < 0:
+                        logger.critical("Ouch! literal size mismatch!")
+                        literal_size = 0
+                    continue
+
+                #
+                # From: https://datatracker.ietf.org/doc/html/rfc9051#section-4.3
+                #
+                # A synchronizing literal is a sequence of zero or more octets
+                # (including CR and LF), prefix-quoted with an octet count in
+                # the form of an open brace ("{"), the number of octets, a close
+                # brace ("}"), and a CRLF. In the case of synchronizing literals
+                # transmitted from server to client, the CRLF is immediately
+                # followed by the octet data.
+                #
+                m = re.match(LiteralRe, line)
+                if m:
+                    literal_size = int(m.group("size"))
+                    continue
 
                 tag, status = parse_server_command(line.decode("utf-8", "replace").rstrip(CRLF))
 
