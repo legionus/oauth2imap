@@ -262,7 +262,13 @@ def session(config: Dict[str,Any], ds: Downstream, up: Upstream) -> bool:
 
                 tag, status = parse_server_command(line.decode("utf-8", "replace").rstrip(CRLF))
 
-                if status == "BYE":
+                #
+                # From: https://datatracker.ietf.org/doc/html/rfc9051#section-7.1.5
+                #
+                # The BYE response is always untagged and indicates that the
+                # server is about to close the connection.
+                #
+                if tag == "*" and status == "BYE":
                     session = False
                     break
 
