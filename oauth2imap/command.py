@@ -106,7 +106,8 @@ Subcommand to maintain xoauth2 tokens.
     sp2.set_defaults(func=cmd_token)
 
     sp2.add_argument("--authflow",
-                     dest="authflow", action="store", metavar="METHOD",
+                     dest="authflow", choices=["authcode", "localhostauthcode"],
+                     default="authcode",
                      help="authorization mode.")
 
     add_common_arguments(sp2)
