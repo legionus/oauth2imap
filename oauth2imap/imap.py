@@ -210,6 +210,10 @@ def session(config: Dict[str,Any], ds: Downstream, up: Upstream) -> bool:
                 break
 
             line = ds.recv_bytes()
+
+            if line == b"":
+                break
+
             if line.rstrip(CRLF.encode()) == b"":
                 continue
 
