@@ -1,0 +1,5 @@
+poll 127.0.0.1 with protocol IMAP
+	plugin "oauth2imap tunnel -vvv -l ~/tmp/oauth2imap-tunnel.log" auth ssh
+	user 'username' is username here options keep forcecr sslproto ''
+	folder 'INBOX'
+	antispam 571 550 501 554 mda '/usr/bin/procmail -d %T'
